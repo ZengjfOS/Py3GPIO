@@ -8,33 +8,46 @@ GPIO这个工具主要是为了方便进行Linux下的GPIO的操作
 from GPIOCtrl import GPIOCtrl
 import select
 import os
+import threading
 
 class GPIO(object):
 
+    mutex = threading.Lock()
+
     @staticmethod
     def initGPIOOut(pinNumber, value):
+        GPIO.mutex.acquire()
         GPIOCtrl.requestGpio(pinNumber)
         GPIOCtrl.setOutValue(pinNumber, value)
+        GPIO.mutex.release()
 
     @staticmethod
     def initGPIOIN(pinNumber):
+        GPIO.mutex.acquire()
         GPIOCtrl.requestGpio(pinNumber)
         GPIOCtrl.setIn(pinNumber)
+        GPIO.mutex.release()
 
     @staticmethod
     def freeGPIO(pinNumber):
+        GPIO.mutex.acquire()
         GPIOCtrl.freeGpio(pinNumber)
+        GPIO.mutex.release()
 
     @staticmethod
     def getValue(pinNumber):
+        GPIO.mutex.acquire()
+        val = GPIOCtrl.getValue(pinNumber)
+        GPIO.mutex.release()
 
-        return GPIOCtrl.getValue(pinNumber)
+        return val
 
 
     @staticmethod
     def setValue(pinNumber, value):
-
+        GPIO.mutex.acquire()
         GPIOCtrl.setValue(pinNumber, value)
+        GPIO.mutex.release()
 
     @staticmethod
     def getIMXPinNumber(group, num):
